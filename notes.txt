@@ -53,4 +53,15 @@ Emil Hernvall
     The problem with vertices behind the camera still being drawn was also solved.
     
     I still plan to move on to using a z-buffer, but for now I've managed to give a solid
-    feel to the surfaces by simply sorting by the y-centroid.
+    feel to the surfaces by simply sorting by the y-centroid. This causes some annoying
+    glitches, but since I would have to start drawing polygons by hand if I want to use
+    a z-buffer, this seems like a good solution for now.
+    
+    The phong reflectance model is rather complicated, so I decided that it would be
+    better to start with something simpler. Lambertian reflectance seemed to be the
+    simplest model, since it only involved taking the dot product of the surface normal
+    and the light source and multiplying it by an intensity value. This seems to give
+    reasonable results. The problem is that this obviously doesn't take visibility
+    into account, so hidden surfaces are incorrectly shaded. I think I'll need
+    some more complex objects to be able to test this correctly. Maybe I can interpolate
+    a sphere?

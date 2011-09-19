@@ -11,6 +11,7 @@ public class GamePane extends JPanel
 {
     private int width, height;
     private Vector3D camera, observer;
+    private List<LightSource> lightsources;
     private List<Vertex> vertices;
     private float[] zBuffer;
     
@@ -25,7 +26,8 @@ public class GamePane extends JPanel
         
         this.width = width;
         this.height = height;
-        this.zBuffer = new float[width*height];
+        
+        this.lightsources = new ArrayList<LightSource>();
         this.vertices = new ArrayList<Vertex>();
         
         this.observer = new Vector3D(0, 0, -5);
@@ -71,6 +73,16 @@ public class GamePane extends JPanel
         this.rotZ = v;
     }
     
+    public void addLightSource(LightSource l)
+    {
+        lightsources.add(l);
+    }
+    
+    public void addVertex(Vertex v)
+    {
+        vertices.add(v);
+    }
+    
     public void addCube(Vector3D a, Vector3D b, Color color)
     {
         // surfaces parallell to the xy plane
@@ -101,18 +113,6 @@ public class GamePane extends JPanel
         vertices.add(new Vertex(b.x, b.y, b.z,  b.x, a.y, b.z,  b.x, b.y, a.z, color));
     }
     
-    public void addVertex(Vertex v)
-    {
-        vertices.add(v);
-    }
-    
-    private void resetZBuffer()
-    {
-        for (int i = 0; i < zBuffer.length; i++) {
-            zBuffer[i] = Float.MAX_VALUE;
-        }
-    }
-    
     @Override
     public void paint(Graphics graphics)
     {
@@ -123,7 +123,22 @@ public class GamePane extends JPanel
                     return a.centroid() - b.centroid() < 0 ? 1 : -1;
                 }
             });
+            
+        double intensityNorm = 0.0;
         for (Vertex v : vertices) {
+            // calculate color
+            Vector3D first = v.b.sub(v.a);
+            Vector3D second = v.c.sub(v.a);
+            
+            Vector3D normal = first.cross(second).norm();
+            double intensity = 0.0;
+            for (LightSource l : lightsources) {
+                Vector3D rel = v.a.sub(l.position);
+                intensity += normal.dot(rel) * l.intensity;
+            }
+            
+            intensityNorm = Math.max(intensityNorm, intensity);
+        
             // change coordinates to camera position
             Vector3D a = v.a.sub(camera);
             Vector3D b = v.b.sub(camera);
@@ -134,7 +149,16 @@ public class GamePane extends JPanel
             b = b.rotZ(rotZ).rotX(rotX);
             c = c.rotZ(rotZ).rotX(rotX);
             
-            renderList.add(new Vertex(a, b, c, v.color));
+            renderList.add(new Vertex(a, b, c, v.color, intensity));
+        }
+        
+        for (Vertex v : renderList) {
+            v.intensity /= intensityNorm;
+            v.color = new Color(
+                    colorBoundary(v.color.getRed() * v.intensity),
+                    colorBoundary(v.color.getGreen() * v.intensity),
+                    colorBoundary(v.color.getBlue() * v.intensity)
+                );
         }
     
         Graphics2D g = (Graphics2D)graphics;
@@ -143,13 +167,23 @@ public class GamePane extends JPanel
         g.fillRect(0, 0, getWidth(), getHeight());
         
         for (Vertex v : renderList) {
-            g.setColor(v.color);
             drawVertice(g, v);
         
-            g.setColor(Color.GREEN);
+            /*g.setColor(Color.GREEN);
             drawLine(g, v.a, v.b);
             drawLine(g, v.b, v.c);
-            drawLine(g, v.a, v.c);
+            drawLine(g, v.a, v.c);*/
+        }
+    }
+    
+    private int colorBoundary(double v)
+    {
+        if (v < 0) {
+            return colorBoundary(-v);
+        } else if (v > 0xFF) {
+            return 0xFF;
+        } else {
+            return (int)v;
         }
     }
     
@@ -192,6 +226,7 @@ public class GamePane extends JPanel
         int y3 = (int)(c.z * focalLength/c.y) + height / 2;
         
         // draw triangle
+        g.setColor(v.color);
         g.fillPolygon(
                 new int[] { x1, x2, x3 },
                 new int[] { y1, y2, y3 },

@@ -61,6 +61,20 @@ public class Vector3D
             );
     }
     
+    public Vector3D cross(Vector3D b)
+    {
+        return new Vector3D(
+                y*b.z - z*b.y,
+                z*b.x - x*b.z,
+                x*b.y - y*b.x
+            );
+    }
+    
+    public double dot(Vector3D b)
+    {
+        return x*b.x + y*b.y + z*b.z;
+    }
+    
     public double abs()
     {
         return Math.sqrt(x*x + y*y + z*z);

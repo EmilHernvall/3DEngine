@@ -21,12 +21,16 @@ public class Main implements KeyListener, ActionListener
     public void run()
     {
         game = new GamePane(500, 500);
+        
         game.setCamera(new Vector3D(250, -500, 250));
+        
+        //game.addLightSource(new LightSource(new Vector3D(100, -250, 250), 1.0));
+        game.addLightSource(new LightSource(new Vector3D(250, -250, 500), 1.0));
+        
         game.addCube(new Vector3D(100, 100, 100), new Vector3D(200, 200, 200), Color.RED);
         game.addCube(new Vector3D(300, 100, 100), new Vector3D(400, 200, 200), Color.GREEN);
         game.addCube(new Vector3D(100, 100, 300), new Vector3D(200, 200, 400), Color.BLUE);
         game.addCube(new Vector3D(300, 100, 300), new Vector3D(400, 200, 400), Color.YELLOW);
-        
         game.addCube(new Vector3D(200, 200, 200), new Vector3D(300, 300, 300), Color.MAGENTA);
         game.addCube(new Vector3D(200, 0, 200), new Vector3D(300, 100, 300), Color.WHITE);
     
