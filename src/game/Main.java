@@ -3,13 +3,18 @@ package game;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class Main implements KeyListener
+public class Main implements KeyListener, ActionListener
 {
     private JFrame frame;
     private GamePane game;
+    
+    private boolean[] keyState = new boolean[256];
 
     public Main()
     {
+        for (int i = 0; i < 0; i++) {
+            keyState[i] = false;
+        }
     }
 
     public void run()
@@ -32,49 +37,76 @@ public class Main implements KeyListener
         frame.addKeyListener(this);
         
         frame.add(game);
+        
+        Timer timer = new Timer(1000/24, this);
+        timer.start();
     }
     
     @Override
     public void keyPressed(KeyEvent e)
     {
+        keyState[e.getKeyCode()] = true;
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e)
+    {
+        keyState[e.getKeyCode()] = false;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e)
+    {
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
         Point3D camera = game.getCamera();
-        int d = 5;
-        Point3D movement = null;
-        float d2 = 0.1f;
-        switch (e.getKeyCode()) {
-            // position
-            case KeyEvent.VK_W:
-                movement = new Point3D(0, d, 0);
-                break;
-            case KeyEvent.VK_S:
-                movement = new Point3D(0, -d, 0);
-                break;
-            case KeyEvent.VK_A:
-                movement = new Point3D(-d, 0, 0);
-                break;
-            case KeyEvent.VK_D:
-                movement = new Point3D(d, 0, 0);
-                break;
-            case KeyEvent.VK_SHIFT:
-                movement = new Point3D(0, 0, d);
-                break;
-            case KeyEvent.VK_SPACE:
-                movement = new Point3D(0, 0, -d);
-                break;
-                
-            // rotation
-            case KeyEvent.VK_DOWN:
-                game.setRotX(game.getRotX() - d2);
-                break;
-            case KeyEvent.VK_UP:
-                game.setRotX(game.getRotX() + d2);
-                break;
-            case KeyEvent.VK_RIGHT:
-                game.setRotZ(game.getRotZ() + d2);
-                break;
-            case KeyEvent.VK_LEFT:
-                game.setRotZ(game.getRotZ() - d2);
-                break;
+        
+        int d = 10;
+        float d2 = 0.05f;
+        
+        Point3D partial = null, movement = null;
+        
+        // position
+        if (keyState[KeyEvent.VK_W]) {
+            partial = new Point3D(0, d, 0);
+            movement = partial.add(movement);
+        }
+        if (keyState[KeyEvent.VK_S]) {
+            partial = new Point3D(0, -d, 0);
+            movement = partial.add(movement);
+        }
+        if (keyState[KeyEvent.VK_A]) {
+            partial = new Point3D(-d, 0, 0);
+            movement = partial.add(movement);
+        }
+        if (keyState[KeyEvent.VK_D]) {
+            partial = new Point3D(d, 0, 0);
+            movement = partial.add(movement);
+        }
+        if (keyState[KeyEvent.VK_SHIFT]) {
+            partial = new Point3D(0, 0, d);
+            movement = partial.add(movement);
+        }
+        if (keyState[KeyEvent.VK_SPACE]) {
+            partial = new Point3D(0, 0, -d);
+            movement = partial.add(movement);
+        }
+            
+        // rotation
+        if (keyState[KeyEvent.VK_DOWN]) {
+            game.setRotX(game.getRotX() - d2);
+        }
+        if (keyState[KeyEvent.VK_UP]) {
+            game.setRotX(game.getRotX() + d2);
+        }
+        if (keyState[KeyEvent.VK_RIGHT]) {
+            game.setRotZ(game.getRotZ() + d2);
+        }
+        if (keyState[KeyEvent.VK_LEFT]) {
+            game.setRotZ(game.getRotZ() - d2);
         }
         
         if (movement != null) {
@@ -83,16 +115,6 @@ public class Main implements KeyListener
         }
         
         game.repaint();
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e)
-    {
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e)
-    {
     }
 
     public static void main(String[] args)

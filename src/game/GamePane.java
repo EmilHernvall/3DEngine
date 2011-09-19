@@ -139,6 +139,10 @@ public class GamePane extends JPanel
         a = a.rotZ(rotZ).rotX(rotX);
         b = b.rotZ(rotZ).rotX(rotX);
         
+        if (a.y <= 1 || b.y <= 1) {
+            return;
+        }
+        
         // apply perspective
         int d = 500;
         

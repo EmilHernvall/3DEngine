@@ -13,15 +13,23 @@ public class Point3D
     
     public Point3D add(Point3D b)
     {
+        if (b == null) {
+            return this;
+        }
+        
         return new Point3D(x + b.x, y + b.y, z + b.z);
     }
     
     public Point3D sub(Point3D b)
     {
+        if (b == null) {
+            return this;
+        }
+    
         return new Point3D(x - b.x, y - b.y, z - b.z);
     }
     
-    public Point3D mul(int c)
+    public Point3D mul(double c)
     {
         return new Point3D(c*x, c*y, c*z);
     }
@@ -51,6 +59,22 @@ public class Point3D
                 x * Math.sin(theta) + y * Math.cos(theta),
                 z
             );
+    }
+    
+    public double abs()
+    {
+        return Math.sqrt(x*x + y*y + z*z);
+    }
+    
+    public Point3D norm()
+    {
+        return mul(1.0/abs());
+    }
+    
+    public double distance(Point3D b)
+    {
+        Point3D e = sub(b).norm();
+        return (b.x - x)/e.x;
     }
     
     @Override
