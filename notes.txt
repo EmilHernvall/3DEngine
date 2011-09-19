@@ -1,0 +1,46 @@
+Writing a 3D engine using the rasterization approach
+Emil Hernvall
+
+2011-09-19, day 1
+
+    My main resource so far has been http://en.wikipedia.org/wiki/Perspective_transform
+    
+    I decided to start out with a engine without any support for surfaces, by simply
+    drawing a mesh. This was accomplished rather easily using the math from the article.
+    
+    The math seems intuitive enough, and I think I understand most of it. Right now I:
+    
+    1. Transform the coordinate of the point being projected to a system with the camera
+       at the origin.
+    2. Apply the rotation matrices. I currently on perform a rotation around the x-axis
+       and z-axis. A transformation around the y-axis would be analogues to tilting
+       ones head. This might be interesting later as part of the game dynamics, but
+       it's not usually something that players are allowed to control. Maybe it could
+       be used to allow people to lean out from behind walls? Perhaps I should develop
+       this into a multi player fps? :)
+    3. Perform the perspective transform. This turned out to be more straight forward
+       than I imagined. It's simply a matter of scaling the points based on the distance
+       from the screen.
+    4. This confused me for a bit. The resulting points will be centered around the origin
+       so they need to be shifted by half of the screen size.
+    
+    The most confusing thing so far was that it took me a while to realize that the camera
+    movements had to depend on the angle of the camera. I solved this by expressing the
+    movement as simple vectors and applying the same rotation matrices that I use for
+    transforming the coordinates of vertices when performing the projection.
+    
+    The approach I currently use for keyboard input isn't working very well. I find it
+    especially annoying that pressing multiple keys simultaneously doesn't work.
+    Some kind of async polling should probably do the trick. Combining different movements
+    should be rather easy since it's just a question of vector addition.
+    
+    I'm a bit confused about the focal length of the virtual camera. The current value
+    seems to work well enough. Lower values seemed to cause an ugly wide angle look.
+    Interestingly enough my current value is equal to the size of the projection area.
+    It seems likely that there is some significance to that.
+
+    Tomorrows project will involve using a z-buffer to project the different surfaces
+    and adding shading. I'm probably going to use the phong reflection model, and 
+    try out several different approaches to shading. The three main ones seem to be
+    Flat shading, Gouraud shading and Phong shading. I'll also look into texture
+    mapping.

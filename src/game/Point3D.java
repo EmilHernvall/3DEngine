@@ -1,0 +1,93 @@
+package game;
+
+public class Point3D
+{
+    public double x, y, z;
+
+    public Point3D(double x, double y, double z)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    
+    public Point3D add(Point3D b)
+    {
+        return new Point3D(x + b.x, y + b.y, z + b.z);
+    }
+    
+    public Point3D sub(Point3D b)
+    {
+        return new Point3D(x - b.x, y - b.y, z - b.z);
+    }
+    
+    public Point3D mul(int c)
+    {
+        return new Point3D(c*x, c*y, c*z);
+    }
+    
+    public Point3D rotX(float theta)
+    {
+        return new Point3D(
+                x,
+                y * Math.cos(theta) - z * Math.sin(theta),
+                y * Math.sin(theta) + z * Math.cos(theta)
+            );
+    }
+    
+    public Point3D rotY(float theta)
+    {
+        return new Point3D(
+                x * Math.cos(theta) + z * Math.sin(theta),
+                y,
+                -x * Math.sin(theta) + z * Math.cos(theta)
+            );
+    }
+    
+    public Point3D rotZ(float theta)
+    {
+        return new Point3D(
+                x * Math.cos(theta) - y * Math.sin(theta),
+                x * Math.sin(theta) + y * Math.cos(theta),
+                z
+            );
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Point3D)) {
+            return false;
+        }
+        
+        Point3D b = (Point3D)obj;
+        
+        return b.x == x && b.y == y && b.z == z;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        int code;
+        long v;
+        
+        code = 17;
+        
+        v = Double.doubleToLongBits(x);
+        code = 31*code + (int)(v ^ (v >> 32));
+        
+        v = Double.doubleToLongBits(y);
+        code = 31*code + (int)(v ^ (v >> 32));
+        
+        v = Double.doubleToLongBits(z);
+        code = 31*code + (int)(v ^ (v >> 32));
+        
+        return code;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "<" + x + ", " + y + ", " + z + ">";
+    }
+}
