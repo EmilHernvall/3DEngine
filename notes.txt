@@ -1,7 +1,7 @@
 Writing a 3D engine using the rasterization approach
 Emil Hernvall
 
-2011-09-19, day 1
+2011-09-18, day 1
 
     My main resource so far has been http://en.wikipedia.org/wiki/Perspective_transform
     
@@ -44,3 +44,13 @@ Emil Hernvall
     try out several different approaches to shading. The three main ones seem to be
     Flat shading, Gouraud shading and Phong shading. I'll also look into texture
     mapping.
+
+2011-09-19, day 2
+
+    Started out by taking care of a few things that doesn't require any major research.
+    I moved to rendering at a fixed fps and checking for movement right before redrawing
+    the scene. This seems to work well enough, and navigating is now a lot more pleasant.
+    The problem with vertices behind the camera still being drawn was also solved.
+    
+    I still plan to move on to using a z-buffer, but for now I've managed to give a solid
+    feel to the surfaces by simply sorting by the y-centroid.

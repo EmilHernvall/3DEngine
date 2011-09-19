@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -20,13 +21,14 @@ public class Main implements KeyListener, ActionListener
     public void run()
     {
         game = new GamePane(500, 500);
-        game.setCamera(new Point3D(250, -500, 250));
-        game.addCube(new Point3D(100, 100, 100), new Point3D(200, 200, 200));
-        game.addCube(new Point3D(300, 100, 100), new Point3D(400, 200, 200));
-        game.addCube(new Point3D(100, 100, 300), new Point3D(200, 200, 400));
-        game.addCube(new Point3D(300, 100, 300), new Point3D(400, 200, 400));
+        game.setCamera(new Vector3D(250, -500, 250));
+        game.addCube(new Vector3D(100, 100, 100), new Vector3D(200, 200, 200), Color.RED);
+        game.addCube(new Vector3D(300, 100, 100), new Vector3D(400, 200, 200), Color.GREEN);
+        game.addCube(new Vector3D(100, 100, 300), new Vector3D(200, 200, 400), Color.BLUE);
+        game.addCube(new Vector3D(300, 100, 300), new Vector3D(400, 200, 400), Color.YELLOW);
         
-        game.addCube(new Point3D(200, 200, 200), new Point3D(300, 300, 300));
+        game.addCube(new Vector3D(200, 200, 200), new Vector3D(300, 300, 300), Color.MAGENTA);
+        game.addCube(new Vector3D(200, 0, 200), new Vector3D(300, 100, 300), Color.WHITE);
     
         frame = new JFrame();
         frame.setResizable(false);
@@ -62,36 +64,36 @@ public class Main implements KeyListener, ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        Point3D camera = game.getCamera();
+        Vector3D camera = game.getCamera();
         
         int d = 10;
         float d2 = 0.05f;
         
-        Point3D partial = null, movement = null;
+        Vector3D partial = null, movement = null;
         
         // position
         if (keyState[KeyEvent.VK_W]) {
-            partial = new Point3D(0, d, 0);
+            partial = new Vector3D(0, d, 0);
             movement = partial.add(movement);
         }
         if (keyState[KeyEvent.VK_S]) {
-            partial = new Point3D(0, -d, 0);
+            partial = new Vector3D(0, -d, 0);
             movement = partial.add(movement);
         }
         if (keyState[KeyEvent.VK_A]) {
-            partial = new Point3D(-d, 0, 0);
+            partial = new Vector3D(-d, 0, 0);
             movement = partial.add(movement);
         }
         if (keyState[KeyEvent.VK_D]) {
-            partial = new Point3D(d, 0, 0);
+            partial = new Vector3D(d, 0, 0);
             movement = partial.add(movement);
         }
         if (keyState[KeyEvent.VK_SHIFT]) {
-            partial = new Point3D(0, 0, d);
+            partial = new Vector3D(0, 0, d);
             movement = partial.add(movement);
         }
         if (keyState[KeyEvent.VK_SPACE]) {
-            partial = new Point3D(0, 0, -d);
+            partial = new Vector3D(0, 0, -d);
             movement = partial.add(movement);
         }
             
