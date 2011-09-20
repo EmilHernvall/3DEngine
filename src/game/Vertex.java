@@ -26,7 +26,7 @@ public class Vertex
         this.intensity = 0.0;
     }
     
-    public double centroid()
+    public double centroidY()
     {
         return (a.y + b.y + c.y) / 3.0;
     }

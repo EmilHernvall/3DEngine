@@ -7,7 +7,7 @@ import javax.swing.*;
 public class Main implements KeyListener, ActionListener
 {
     private JFrame frame;
-    private GamePane game;
+    private GraphicsEngine engine;
     
     private boolean[] keyState = new boolean[256];
 
@@ -20,29 +20,32 @@ public class Main implements KeyListener, ActionListener
 
     public void run()
     {
-        game = new GamePane(500, 500);
+        engine = new GraphicsEngine(500, 500);
         
-        game.setCamera(new Vector3D(250, -500, 250));
+        SwingSurface surface = new SwingSurface(engine);
+        engine.setSurface(surface);
+        
+        engine.setCamera(new Vector3D(250, -500, 250));
         
         //game.addLightSource(new LightSource(new Vector3D(100, -250, 250), 1.0));
-        game.addLightSource(new LightSource(new Vector3D(250, -250, 500), 1.0));
+        engine.addLightSource(new LightSource(new Vector3D(250, -250, 500), 1.0));
         
-        game.addCube(new Vector3D(100, 100, 100), new Vector3D(200, 200, 200), Color.RED);
-        game.addCube(new Vector3D(300, 100, 100), new Vector3D(400, 200, 200), Color.GREEN);
-        game.addCube(new Vector3D(100, 100, 300), new Vector3D(200, 200, 400), Color.BLUE);
-        game.addCube(new Vector3D(300, 100, 300), new Vector3D(400, 200, 400), Color.YELLOW);
-        game.addCube(new Vector3D(200, 200, 200), new Vector3D(300, 300, 300), Color.MAGENTA);
-        game.addCube(new Vector3D(200, 0, 200), new Vector3D(300, 100, 300), Color.WHITE);
+        engine.addCube(new Vector3D(100, 100, 100), new Vector3D(200, 200, 200), Color.RED);
+        engine.addCube(new Vector3D(300, 100, 100), new Vector3D(400, 200, 200), Color.GREEN);
+        engine.addCube(new Vector3D(100, 100, 300), new Vector3D(200, 200, 400), Color.BLUE);
+        engine.addCube(new Vector3D(300, 100, 300), new Vector3D(400, 200, 400), Color.YELLOW);
+        engine.addCube(new Vector3D(200, 200, 200), new Vector3D(300, 300, 300), Color.MAGENTA);
+        engine.addCube(new Vector3D(200, 0, 200), new Vector3D(300, 100, 300), Color.WHITE);
     
         frame = new JFrame();
         frame.setResizable(false);
         frame.setTitle("Game");
-        frame.setSize(game.getWidth(), game.getHeight());
+        frame.setSize(engine.getWidth(), engine.getHeight());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.addKeyListener(this);
         
-        frame.add(game);
+        frame.add(surface);
         
         Timer timer = new Timer(1000/24, this);
         timer.start();
@@ -68,7 +71,7 @@ public class Main implements KeyListener, ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        Vector3D camera = game.getCamera();
+        Vector3D camera = engine.getCamera();
         
         int d = 10;
         float d2 = 0.05f;
@@ -103,24 +106,24 @@ public class Main implements KeyListener, ActionListener
             
         // rotation
         if (keyState[KeyEvent.VK_DOWN]) {
-            game.setRotX(game.getRotX() - d2);
+            engine.setRotX(engine.getRotX() - d2);
         }
         if (keyState[KeyEvent.VK_UP]) {
-            game.setRotX(game.getRotX() + d2);
+            engine.setRotX(engine.getRotX() + d2);
         }
         if (keyState[KeyEvent.VK_RIGHT]) {
-            game.setRotZ(game.getRotZ() + d2);
+            engine.setRotZ(engine.getRotZ() + d2);
         }
         if (keyState[KeyEvent.VK_LEFT]) {
-            game.setRotZ(game.getRotZ() - d2);
+            engine.setRotZ(engine.getRotZ() - d2);
         }
         
         if (movement != null) {
-            movement = movement.rotX(-game.getRotX()).rotZ(-game.getRotZ());
-            game.setCamera(camera.add(movement));
+            movement = movement.rotX(-engine.getRotX()).rotZ(-engine.getRotZ());
+            engine.setCamera(camera.add(movement));
         }
         
-        game.repaint();
+        engine.triggerRedraw();
     }
 
     public static void main(String[] args)

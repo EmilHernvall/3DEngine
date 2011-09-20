@@ -65,3 +65,17 @@ Emil Hernvall
     into account, so hidden surfaces are incorrectly shaded. I think I'll need
     some more complex objects to be able to test this correctly. Maybe I can interpolate
     a sphere?
+    
+2011-09-20, day 3
+
+    Finally got around to implementing triangle drawing and moving to zbuffering. There
+    are a few glitches that I'm unsure about, but in principle things seem to work. I think
+    it might be related to precision issues due to casting. The triangle drawing routines 
+    does a whole lot of interpolation which seems to be rather resource intensive, so I'll 
+    try to optimize that later.
+    
+    I've been annoyed for a few days about the engine being tied into Swing and AWT. I finally
+    got around to moving the platform specific code into a separate surface class. This should
+    in principle make it easy to move to other surfaces. Possibly an HTML 5 canvas? I'm
+    guessing that the entire project could be compiled in GWT, which would be kind of cool.
+    
