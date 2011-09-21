@@ -39,4 +39,10 @@ public class Vertex
                 (a.z + b.z + c.z) / 3.0
             );
     }
+    
+    @Override
+    public String toString()
+    {
+        return a + ", " + b + ", " + c;
+    }
 }

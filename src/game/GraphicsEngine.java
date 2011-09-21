@@ -125,6 +125,37 @@ public class GraphicsEngine
         vertices.add(new Vertex(b.x, b.y, b.z,  b.x, a.y, b.z,  b.x, b.y, a.z, color));
     }
     
+    public void addSphere(Vector3D center, double radius, int steps, Color color)
+    {
+        for (int t = 0; t < steps; t++) {
+            for (int s = 0; s < steps; s++) {
+                double theta1 = 2*Math.PI*t/steps;
+                double theta2 = 2*Math.PI*(t+1)/steps;
+                double phi1 = 2*Math.PI*s/steps;
+                double phi2 = 2*Math.PI*(s+1)/steps;
+                
+                double x11 = center.x + radius*Math.sin(theta1)*Math.cos(phi1);
+                double y11 = center.y + radius*Math.sin(theta1)*Math.sin(phi1);
+                
+                double x12 = center.x + radius*Math.sin(theta1)*Math.cos(phi2);
+                double y12 = center.y + radius*Math.sin(theta1)*Math.sin(phi2);
+                
+                double z1 = center.z + radius*Math.cos(theta1);
+                
+                double x21 = center.x + radius*Math.sin(theta2)*Math.cos(phi1);
+                double y21 = center.y + radius*Math.sin(theta2)*Math.sin(phi1);
+                
+                double x22 = center.x + radius*Math.sin(theta2)*Math.cos(phi2);
+                double y22 = center.y + radius*Math.sin(theta2)*Math.sin(phi2);
+                
+                double z2 = center.z + radius*Math.cos(theta2);
+                
+                vertices.add(new Vertex(x11, y11, z1,  x12, y12, z1,  x21, y21, z2, color));
+                vertices.add(new Vertex(x22, y22, z2,  x12, y12, z1,  x21, y21, z2, color));
+            }
+        }
+    }
+    
     public void triggerRedraw()
     {
         surface.repaint();
@@ -139,6 +170,8 @@ public class GraphicsEngine
     
     public void drawScene()
     {
+        long time = System.currentTimeMillis();
+        
         resetZBuffer();
         
         List<Vertex> renderList = new ArrayList<Vertex>();
@@ -153,11 +186,15 @@ public class GraphicsEngine
             double intensity = 0.0;
             for (LightSource l : lightsources) {
                 Vector3D rel = v.a.sub(l.position);
-                intensity += normal.dot(rel) * l.intensity;
+                
+                double i = normal.dot(rel) * l.intensity;
+                if (!Double.isNaN(i)) {
+                    intensity += i;
+                }
             }
             
             intensityNorm = Math.max(intensityNorm, intensity);
-        
+            
             // change coordinates to camera position
             Vector3D a = v.a.sub(camera);
             Vector3D b = v.b.sub(camera);
@@ -171,30 +208,27 @@ public class GraphicsEngine
             renderList.add(new Vertex(a, b, c, v.color, intensity));
         }
         
+        // normalize colors and draw
+        int drawn = 0;
         for (Vertex v : renderList) {
             v.intensity /= intensityNorm;
             v.color = new Color(
-                    colorBoundary(v.color.getRed() * v.intensity),
-                    colorBoundary(v.color.getGreen() * v.intensity),
-                    colorBoundary(v.color.getBlue() * v.intensity)
+                    (int)Math.abs(v.color.getRed() * v.intensity),
+                    (int)Math.abs(v.color.getGreen() * v.intensity),
+                    (int)Math.abs(v.color.getBlue() * v.intensity)
                 );
                 
-            drawVertex(v);
+            if (drawVertex(v)) {
+                drawn++;
+            }
         }
+        
+        time = System.currentTimeMillis() - time;
+        
+        System.out.println("drew " + drawn + " vertices in " + time + " ms.");
     }
     
-    private int colorBoundary(double v)
-    {
-        if (v < 0) {
-            return colorBoundary(-v);
-        } else if (v > 0xFF) {
-            return 0xFF;
-        } else {
-            return (int)v;
-        }
-    }
-    
-    private void drawVertex(Vertex v)
+    private boolean drawVertex(Vertex v)
     {
         Vector3D a = v.a;
         Vector3D b = v.b;
@@ -202,7 +236,7 @@ public class GraphicsEngine
         
         // hide surfaces behind the camera
         if (a.y <= 1 || b.y <= 1 || c.y < 1) {
-            return;
+            return false;
         }
         
         // apply perspective
@@ -217,6 +251,15 @@ public class GraphicsEngine
         int x3 = (int)(c.x * focalLength/c.y) + width / 2;
         int y3 = (int)(c.z * focalLength/c.y) + height / 2;
         int z3 = (int)c.y;
+        
+        if (
+                ((x1 < 0 || x1 > width) && (y1 < 0 || y1 > height)) ||
+                ((x2 < 0 || x2 > width) && (y2 < 0 || y2 > height)) || 
+                ((x3 < 0 || x3 > width) && (y3 < 0 || y3 > height))
+            ) {
+            
+            return false;
+        }
         
         // draw triangle
         int tmp;
@@ -236,13 +279,13 @@ public class GraphicsEngine
             tmp = z2; z2 = z3; z3 = tmp;
         }
         
-        double[] x12 = linearInterpolation(y1, x1, y2, x2);
-        double[] x23 = linearInterpolation(y2, x2, y3, x3);
-        double[] x13 = linearInterpolation(y1, x1, y3, x3);
+        double[] x12 = MathUtils.linearInterpolation(y1, x1, y2, x2);
+        double[] x23 = MathUtils.linearInterpolation(y2, x2, y3, x3);
+        double[] x13 = MathUtils.linearInterpolation(y1, x1, y3, x3);
         
-        double[] z12 = linearInterpolation(y1, z1, y2, z2);
-        double[] z23 = linearInterpolation(y2, z2, y3, z3);
-        double[] z13 = linearInterpolation(y1, z1, y3, z3);
+        double[] z12 = MathUtils.linearInterpolation(y1, z1, y2, z2);
+        double[] z23 = MathUtils.linearInterpolation(y2, z2, y3, z3);
+        double[] z13 = MathUtils.linearInterpolation(y1, z1, y3, z3);
 
         for (int y = y1; y < y2; y++) {
             drawSegment((int)x12[y-y1], y, (int)z12[y-y1], (int)x13[y-y1], y, (int)z13[y-y1], v.color);
@@ -251,6 +294,8 @@ public class GraphicsEngine
         for (int y = y2; y < y3; y++) {
             drawSegment((int)x23[y-y2], y, (int)z23[y-y2], (int)x13[y-y1], y, (int)z13[y-y1], v.color);
         }
+        
+        return true;
     }
     
     private void drawSegment(int x0, int y0, int z0, int x1, int y1, int z1, Color color)
@@ -265,8 +310,8 @@ public class GraphicsEngine
                 tmp = y0; y0 = y1; y1 = tmp;
             }
 
-            double[] y_values = linearInterpolation(x0, y0, x1, y1);
-            double[] z_values = linearInterpolation(x0, z0, x1, z1);
+            double[] y_values = MathUtils.linearInterpolation(x0, y0, x1, y1);
+            double[] z_values = MathUtils.linearInterpolation(x0, z0, x1, z1);
             for (int x = x0; x < x1; x++) {
                 putPixel(x, (int)y_values[x-x0], (float)z_values[x-x0], color);
             }
@@ -277,8 +322,8 @@ public class GraphicsEngine
                 tmp = y0; y0 = y1; y1 = tmp;
             }
 
-            double[] x_values = linearInterpolation(y0, x0, y1, x1);
-            double[] z_values = linearInterpolation(y0, z0, y1, z1);
+            double[] x_values = MathUtils.linearInterpolation(y0, x0, y1, x1);
+            double[] z_values = MathUtils.linearInterpolation(y0, z0, y1, z1);
             for (int y = y0; y < y1; y++) {
                 putPixel((int)x_values[y-y0], y, (float)z_values[y-y0], color);
             }
@@ -298,24 +343,5 @@ public class GraphicsEngine
             surface.putPixel(x, y, color);
             zBuffer[width*y + x] = z;
         }
-    }
-    
-    private double[] linearInterpolation(int t0, double f0, int t1, double f1)
-    {
-        int nSteps = Math.abs(t1 - t0);
-        if (nSteps == 0) {
-            return new double[] { f0 };
-        } 
-        
-        double fSlope = (f1 - f0) / nSteps;
-        
-        double f = f0;
-        double[] lValues = new double[nSteps];
-        for (int i = 0; i < nSteps; i++) {
-            lValues[i] = f;
-            f += fSlope;
-        }
-        
-        return lValues;
     }
 }
