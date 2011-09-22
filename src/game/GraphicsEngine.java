@@ -9,20 +9,20 @@ import javax.swing.*;
 
 public class GraphicsEngine
 {
-    private Surface surface;
+    Surface surface;
 
-    private int width, height;
-    private Vector3D camera, observer;
-    private List<LightSource> lightsources;
-    private List<Polygon> polygons;
-    private Map<Vector3D, List<Polygon>> vertices;
-    private float[] zBuffer;
+    int width, height;
+    Vector3D camera, observer;
+    List<LightSource> lightsources;
+    List<Polygon> polygons;
+    Map<Vector3D, List<Polygon>> vertices;
+    float[] zBuffer;
     
-    private float rotX = 0.0f;
-    private float rotZ = 0.0f;
+    float rotX = 0.0f;
+    float rotZ = 0.0f;
     
-    private double ambientIntensity = 1.0;
-    private int focalLength = 500;
+    double ambientIntensity = 1.0;
+    int focalLength = 500;
 
     public GraphicsEngine(int width, int height)
     {
@@ -38,55 +38,20 @@ public class GraphicsEngine
         this.observer = new Vector3D(0, 0, -5);
     }
     
-    public void setSurface(Surface surface)
-    {
-        this.surface = surface;
-    }
+    public void setSurface(Surface surface) { this.surface = surface; }
+    public Surface getSurface() { return surface; }
     
-    public Surface getSurface()
-    {
-        return surface;
-    }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
     
-    public int getWidth()
-    {
-        return width;
-    }
+    public Vector3D getCamera() { return camera; }
+    public void setCamera(Vector3D camera) { this.camera = camera; }
     
-    public int getHeight()
-    {
-        return height;
-    }
-    
-    public void setCamera(Vector3D camera)
-    {
-        this.camera = camera;
-    }
-    
-    public Vector3D getCamera()
-    {
-        return camera;
-    }
-    
-    public float getRotX()
-    {
-        return rotX;
-    }
-    
-    public float getRotZ()
-    {
-        return rotZ;
-    }
-    
-    public void setRotX(float v)
-    {
-        this.rotX = v;
-    }
-    
-    public void setRotZ(float v)
-    {
-        this.rotZ = v;
-    }
+    public float getRotX() { return rotX;  }
+    public void setRotX(float v) { this.rotX = v; }
+
+    public float getRotZ() { return rotZ; }
+    public void setRotZ(float v) { this.rotZ = v; }
     
     public void addLightSource(LightSource l)
     {
@@ -238,14 +203,72 @@ public class GraphicsEngine
         }    
     }
     
+    private List<Plane> createFrustum()
+    {
+        double nearDist = focalLength;
+        double farDist = 4*nearDist;
+        
+        double farWidth = width * farDist/nearDist;
+        double farHeight = height * farDist/nearDist;
+        
+        Vector3D cameraDir = new Vector3D(0, 1, 0);
+        cameraDir = cameraDir.rotX(-rotX).rotZ(-rotZ).norm();
+        
+        Vector3D up = new Vector3D(0, 0, 1);
+        up = up.rotX(-rotX).rotZ(-rotZ).norm();
+        
+        Vector3D right = new Vector3D(1, 0, 0);
+        right = right.rotX(-rotX).rotZ(-rotZ).norm();
+        
+        Vector3D nearCentroid = camera.add(cameraDir.mul(nearDist));
+        Vector3D farCentroid = camera.add(cameraDir.mul(farDist));
+        
+        Vector3D ntl = nearCentroid.add(up.mul(height/2.0)).add(right.mul(-width/2.0));
+        Vector3D ntr = nearCentroid.add(up.mul(height/2.0)).add(right.mul(width/2.0));
+        Vector3D nbl = nearCentroid.add(up.mul(-height/2.0)).add(right.mul(-width/2.0));
+        Vector3D nbr = nearCentroid.add(up.mul(-height/2.0)).add(right.mul(width/2.0));
+        
+        Vector3D ftl = farCentroid.add(up.mul(farHeight/2.0)).add(right.mul(-farWidth/2.0));
+        Vector3D ftr = farCentroid.add(up.mul(farHeight/2.0)).add(right.mul(farWidth/2.0));
+        Vector3D fbl = farCentroid.add(up.mul(-farHeight/2.0)).add(right.mul(-farWidth/2.0));
+        Vector3D fbr = farCentroid.add(up.mul(-farHeight/2.0)).add(right.mul(farWidth/2.0));
+        
+        List<Plane> frustum = new ArrayList<Plane>();
+        
+        frustum.add(new Plane(ntl, nbl, ftl)); // left plane
+        frustum.add(new Plane(ntr, ftr, nbr)); // right plane
+        frustum.add(new Plane(ntr, ntl, ftr)); // top plane
+        frustum.add(new Plane(nbr, fbr, nbl)); // bottom plane
+        //frustum.add(new Plane(nbl, ntl, nbr)); // near plane
+        //frustum.add(new Plane(fbl, fbr, ftl)); // far plane
+        
+        return frustum;
+    }
+    
     public void drawScene()
     {
         long time = System.currentTimeMillis();
         
         resetZBuffer();
         
+        List<Plane> frustum = createFrustum();
+        
         int drawn = 0;
         for (Polygon v : polygons) {
+            // hide polygons outside of the statum
+            Vector3D centroid = v.centroid3D();
+            boolean outside = false;
+            for (Plane plane : frustum) {
+                double dist = plane.distance(centroid);
+                if (dist < 0) {
+                    outside = true;
+                    break;
+                }
+            }
+            
+            if (outside) {
+                continue;
+            }
         
             // hide polygons facing away from the camera
             Vector3D normal = v.normal();
@@ -277,7 +300,7 @@ public class GraphicsEngine
         
         time = System.currentTimeMillis() - time;
         
-        System.out.println("drew " + drawn + " polygons in " + time + " ms.");
+        System.out.println("drew " + drawn + " polygons in " + time + " ms (" + (1000/time) + " fps).");
     }
     
     private boolean drawPolygon(Polygon v)
@@ -291,7 +314,8 @@ public class GraphicsEngine
             return false;
         }
         
-        // apply perspective
+        // apply perspective. x and y are the 2d coordinates here,
+        // while z just indicates depth from now on.
         int x1 = (int)(a.x * focalLength/a.y) + width / 2;
         int y1 = (int)(a.z * focalLength/a.y) + height / 2;
         int z1 = (int)a.y;
@@ -306,15 +330,6 @@ public class GraphicsEngine
         int y3 = (int)(c.z * focalLength/c.y) + height / 2;
         int z3 = (int)c.y;
         double i3 = v.cIntensity;
-        
-        if (
-                ((x1 < 0 || x1 > width) && (y1 < 0 || y1 > height)) ||
-                ((x2 < 0 || x2 > width) && (y2 < 0 || y2 > height)) || 
-                ((x3 < 0 || x3 > width) && (y3 < 0 || y3 > height))
-            ) {
-            
-            return false;
-        }
         
         // draw triangle
         int tmp;
@@ -341,11 +356,15 @@ public class GraphicsEngine
         double[] x12 = MathUtils.linearInterpolation(y1, x1, y2, x2);
         double[] x23 = MathUtils.linearInterpolation(y2, x2, y3, x3);
         double[] x13 = MathUtils.linearInterpolation(y1, x1, y3, x3);
-        
+
+        // the drawing is really done in 2d after the perspective transformation
+        // but we interpolate the depth to be able to do z-buffering.
         double[] z12 = MathUtils.linearInterpolation(y1, z1, y2, z2);
         double[] z23 = MathUtils.linearInterpolation(y2, z2, y3, z3);
         double[] z13 = MathUtils.linearInterpolation(y1, z1, y3, z3);
         
+        // this is the gouraud shading, which we do by interpolating the
+        // intensities of each vertex across the triangle
         double[] i12 = MathUtils.linearInterpolation(y1, i1, y2, i2);
         double[] i23 = MathUtils.linearInterpolation(y2, i2, y3, i3);
         double[] i13 = MathUtils.linearInterpolation(y1, i1, y3, i3);

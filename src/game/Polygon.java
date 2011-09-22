@@ -32,10 +32,20 @@ public class Polygon
         this.bIntensity = 0.0;
         this.cIntensity = 0.0;
     }
+
+    public double centroidX()
+    {
+        return (a.x + b.x + c.x) / 3.0;
+    }
     
     public double centroidY()
     {
         return (a.y + b.y + c.y) / 3.0;
+    }
+    
+    public double centroidZ()
+    {
+        return (a.z + b.z + c.z) / 3.0;
     }
     
     public Vector3D centroid3D()
@@ -53,6 +63,18 @@ public class Polygon
         Vector3D second = c.sub(a);
         
         return first.cross(second).mul(dir).norm();
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Vector3D)) {
+            return false;
+        }
+        
+        Polygon pol = (Polygon)obj;
+        
+        return a.equals(pol.a) && b.equals(pol.b) && c.equals(pol.c);
     }
     
     @Override

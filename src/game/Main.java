@@ -8,6 +8,7 @@ public class Main implements KeyListener, ActionListener
 {
     private JFrame frame;
     private GraphicsEngine engine;
+    private DebugWindow debugWin = null;
     
     private boolean[] keyState = new boolean[256];
 
@@ -25,19 +26,19 @@ public class Main implements KeyListener, ActionListener
         SwingSurface surface = new SwingSurface(engine);
         engine.setSurface(surface);
         
-        engine.setCamera(new Vector3D(250, -500, 250));
-        //engine.setCamera(new Vector3D(709.40, 758.20, 8.01));
-        //engine.setRotX(-0.35f);
-        //engine.setRotZ(-2.55f);
+        //engine.setCamera(new Vector3D(250, -500, 250));
+        engine.setCamera(new Vector3D(709.40, 758.20, 8.01));
+        engine.setRotX(-0.35f);
+        engine.setRotZ(-2.55f);
         
         engine.addLightSource(new LightSource(new Vector3D(-100, -250, 250), 10.0));
         engine.addLightSource(new LightSource(new Vector3D(600, -250, 250), 10.0));
         
-        engine.addCube(new Vector3D(0, 0, 300), new Vector3D(200, 200, 500), Color.BLUE);
-        engine.addCube(new Vector3D(300, 0, 300), new Vector3D(500, 200, 500), Color.YELLOW);
+        engine.addCube(new Vector3D(0, 100, 300), new Vector3D(200, 300, 500), Color.BLUE);
+        engine.addCube(new Vector3D(300, 100, 300), new Vector3D(500, 300, 500), Color.YELLOW);
         
-        engine.addSphere(new Vector3D(100, 100, 100), 100.0, 25, Color.RED);
-        engine.addSphere(new Vector3D(400, 100, 100), 100.0, 25, Color.GREEN);
+        engine.addSphere(new Vector3D(100, 200, 100), 100.0, 25, Color.RED);
+        engine.addSphere(new Vector3D(400, 200, 100), 100.0, 25, Color.GREEN);
         
         engine.preprocessScene();
     
@@ -50,6 +51,8 @@ public class Main implements KeyListener, ActionListener
         frame.addKeyListener(this);
         
         frame.add(surface);
+        
+        //debugWin = new DebugWindow(engine);
         
         Timer timer = new Timer(1000/24, this);
         timer.start();
@@ -125,17 +128,20 @@ public class Main implements KeyListener, ActionListener
         if (movement != null) {
             movement = movement.rotX(-engine.getRotX()).rotZ(-engine.getRotZ());
             camera = camera.add(movement);
-            System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
+            //System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
             engine.setCamera(camera);
         }
         
         engine.triggerRedraw();
+        if (debugWin != null) {
+            debugWin.repaint();
+        }
     }
 
     public static void main(String[] args)
     {
-        java.util.Scanner scanner = new java.util.Scanner(System.in);
-        scanner.nextLine();
+        //java.util.Scanner scanner = new java.util.Scanner(System.in);
+        //scanner.nextLine();
     
         Main main = new Main();
         main.run();

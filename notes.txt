@@ -145,3 +145,19 @@ Emil Hernvall
     despite the rather extensive use I make of it. Right now the code runs rather fast, which feels rather
     satisfying. The next step will probably be to implement some kind of clipping against the view frustum.
     
+2011-09-22, day 6:
+
+    Today I started working on hidden surface removal using a view frustum. The flipcode link I provided
+    yesterday described this approach. It works by constructing four planes around the field of view,
+    and removes any polygons outside of the planes. Whether they are inside or outside can be determined
+    quickly using the point-to-plane distance formula. This is as simple as substituting the point that
+    you wish to check into the formula.
+    
+    In practice there were a few things that caused me a lot of trouble when implementing this, but in the
+    end it turned out that I got almost everything right, except one small thing - the point should be
+    checked before applying any transformations. Took me several hours and a lot of frustration to realize.
+    
+    One of the ways in which I debugged this was to add a second window with a orthographic project of the
+    scene from above. This allowed me to actually visualize the frustum. Unfortunately the problem had
+    nothing to do with the calculation of the stratum, but I guess it might come in handy later.
+    
