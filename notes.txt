@@ -79,3 +79,69 @@ Emil Hernvall
     in principle make it easy to move to other surfaces. Possibly an HTML 5 canvas? I'm
     guessing that the entire project could be compiled in GWT, which would be kind of cool.
     
+2011-09-21, day 4
+
+    Decided it was time to move on to some for complex surfaces, and opted for spheres. Used
+    spherical coordinates to construct the sphere by doing a fixed number of steps and creating
+    polygons along the way.
+    
+    One of the things that's been nagging me was the fact that surfaces on the side of an object
+    opposite the light source was still lit. I realized yesterday that one solution might be
+    to use some kind of oriented surfaces that are only rendered if viewed from a certain
+    direction, but for some reason I didn't manage to get that working. Turns out that all I
+    had to do was to take the dot product of the polygon normal and the vector from a point
+    on the polygon to the camera, and check if the result is positive. This solved a lot
+    of glitches, and should probably have been done a lot earlier.
+    
+    I also decided to try gouraud shading rather than flat shading. This scheme is simple
+    enough conceptually, and if it wasn't for any number of confusing glitches it would
+    have been easy to implement. In principle, you just interpolate the normal vector
+    of each polygon at a certain vertex and interpolate across the polygon. This looks
+    _a lot_ better than flat shading, even though I'm still only using lambertian reflectance.
+    Switching to a different reflection model doesn't seem very hard, though, so I'll
+    probably give phong reflectance a shot when I have the time.
+    
+    Another thing I've realized today is that I really need to implement some kind of
+    clipping strategy. Sutherland–Hodgman seems like a good choice, and doesn't seem
+    too complicated to implement.
+    
+2011-09-21, day 5
+
+    This is a dump of resources I've been using.
+    
+    Drawing triangles. This is pretty much the only code I've copied verbatim, although I've
+    had to modify to interpolate color intensity and the z-coordinate. It's pretty close to
+    what I would have done if I had implemented it myself, and the code is easy enough to
+    understand:
+    
+     * http://gabrielongraphics.blogspot.com/2005/09/drawing-triangles.html
+     * http://gabrielongraphics.blogspot.com/2005/09/drawing-line-segments.html 
+    
+    Shading and lighting:
+    
+     * http://en.wikipedia.org/wiki/Lambertian_reflectance
+     * http://en.wikipedia.org/wiki/Gouraud_shading
+     
+     * http://en.wikipedia.org/wiki/Phong_reflection_model
+     * http://en.wikipedia.org/wiki/Phong_shading
+     
+    Clipping:
+    
+     * http://en.wikipedia.org/wiki/Sutherland-Hodgeman
+     
+    I got some key insight from here, in regards to hiding polygons facing away from the camera:
+    
+     * http://www.flipcode.com/archives/Building_a_3D_Portal_Engine-Issue_06_Hidden_Surface_Removal.shtml
+     
+    It was high time to do some optimization, so I profiled the code using JVisualVM and realized that almost
+    all time is spent drawing the individual pixels. I handled this by moving away from the crappy solution
+    of using fillRect() to set the pixels, and replaced it with a image so that I can write directly to the
+    raster. This was a major speed up.
+    
+    Since none of the lighting calculations depend on the camera position right now, I was also able to
+    move those calculations into a preprocessing step, which also caused a major speed up.
+    
+    I was a bit surprised to learn that very little time is spent in the linear interpolation routine,
+    despite the rather extensive use I make of it. Right now the code runs rather fast, which feels rather
+    satisfying. The next step will probably be to implement some kind of clipping against the view frustum.
+    

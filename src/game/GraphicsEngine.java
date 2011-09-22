@@ -217,15 +217,34 @@ public class GraphicsEngine
         return Math.abs(intensity);
     }
     
+    public void preprocessScene()
+    {
+        double intensityNorm = 0.0;
+        for (Polygon v : polygons) {
+            // calculate color
+            v.aIntensity = calcIntensity(v.a);
+            intensityNorm = Math.max(intensityNorm, v.aIntensity);
+            v.bIntensity = calcIntensity(v.b);
+            intensityNorm = Math.max(intensityNorm, v.bIntensity);
+            v.cIntensity = calcIntensity(v.c);
+            intensityNorm = Math.max(intensityNorm, v.cIntensity);
+        }
+        
+        // normalize intensities
+        for (Polygon v : polygons) {
+            v.aIntensity /= intensityNorm;
+            v.bIntensity /= intensityNorm;
+            v.cIntensity /= intensityNorm;
+        }    
+    }
+    
     public void drawScene()
     {
         long time = System.currentTimeMillis();
         
         resetZBuffer();
         
-        List<Polygon> renderList = new ArrayList<Polygon>();
-            
-        double intensityNorm = 0.0;
+        int drawn = 0;
         for (Polygon v : polygons) {
         
             // hide polygons facing away from the camera
@@ -236,14 +255,6 @@ public class GraphicsEngine
                 continue;
             }
         
-            // calculate color
-            double aIntensity = calcIntensity(v.a);
-            intensityNorm = Math.max(intensityNorm, aIntensity);
-            double bIntensity = calcIntensity(v.b);
-            intensityNorm = Math.max(intensityNorm, bIntensity);
-            double cIntensity = calcIntensity(v.c);
-            intensityNorm = Math.max(intensityNorm, cIntensity);
-            
             // change coordinates to camera position
             Vector3D a = v.a.sub(camera);
             Vector3D b = v.b.sub(camera);
@@ -255,22 +266,11 @@ public class GraphicsEngine
             c = c.rotZ(rotZ).rotX(rotX);
             
             Polygon p = new Polygon(a, b, c, v.dir, v.color);
-            p.aIntensity = aIntensity;
-            p.bIntensity = bIntensity;
-            p.cIntensity = cIntensity;
-            renderList.add(p);
-        }
-        
-        // normalize colors and draw
-        int drawn = 0;
-        for (Polygon v : renderList) {
-            v.aIntensity /= intensityNorm;
-            v.bIntensity /= intensityNorm;
-            v.cIntensity /= intensityNorm;
+            p.aIntensity = v.aIntensity;
+            p.bIntensity = v.bIntensity;
+            p.cIntensity = v.cIntensity;
             
-            //System.out.println(v.aIntensity + ", " + v.bIntensity + ", " + v.cIntensity);
-                
-            if (drawPolygon(v)) {
+            if (drawPolygon(p)) {
                 drawn++;
             }
         }
