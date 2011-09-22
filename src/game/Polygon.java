@@ -7,8 +7,9 @@ public class Polygon
     public Vector3D a, b, c;
     public Color color;
     public double aIntensity, bIntensity, cIntensity;
+    public double dir;
     
-    public Polygon(Vector3D a, Vector3D b, Vector3D c, Color color)
+    public Polygon(Vector3D a, Vector3D b, Vector3D c, double dir, Color color)
     {
         this.a = a;
         this.b = b;
@@ -16,15 +17,17 @@ public class Polygon
         this.color = color;
         this.aIntensity = 0.0;
         this.bIntensity = 0.0;
-        this.cIntensity = 0.0;        
+        this.cIntensity = 0.0;
+        this.dir = dir;
     }
     
-    public Polygon(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, Color color)
+    public Polygon(double x1, double y1, double z1, double x2, double y2, double z2, double x3, double y3, double z3, double dir, Color color)
     {
         this.a = new Vector3D(x1, y1, z1);
         this.b = new Vector3D(x2, y2, z2);
         this.c = new Vector3D(x3, y3, z3);
         this.color = color;
+        this.dir = dir;
         this.aIntensity = 0.0;
         this.bIntensity = 0.0;
         this.cIntensity = 0.0;
@@ -49,7 +52,7 @@ public class Polygon
         Vector3D first = b.sub(a);
         Vector3D second = c.sub(a);
         
-        return first.cross(second).norm();
+        return first.cross(second).mul(dir).norm();
     }
     
     @Override

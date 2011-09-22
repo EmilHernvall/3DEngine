@@ -25,24 +25,19 @@ public class Main implements KeyListener, ActionListener
         SwingSurface surface = new SwingSurface(engine);
         engine.setSurface(surface);
         
-        engine.setCamera(new Vector3D(250, -500, 250));
-        engine.setCamera(new Vector3D(632.97, -109.23, 158.04));
-        engine.setRotX(0.15f);
-        engine.setRotZ(-0.95f);
+        //engine.setCamera(new Vector3D(250, -500, 250));
+        engine.setCamera(new Vector3D(709.40, 758.20, 8.01));
+        engine.setRotX(-0.35f);
+        engine.setRotZ(-2.55f);
         
         //game.addLightSource(new LightSource(new Vector3D(100, -250, 250), 1.0));
         engine.addLightSource(new LightSource(new Vector3D(250, -500, 250), 10.0));
         
-        engine.addCube(new Vector3D(100, 100, 100), new Vector3D(200, 200, 200), Color.RED);
-        engine.addCube(new Vector3D(300, 100, 100), new Vector3D(400, 200, 200), Color.GREEN);
-        //engine.addCube(new Vector3D(0, 0, 300), new Vector3D(200, 200, 500), Color.BLUE);
-        //engine.addCube(new Vector3D(300, 0, 300), new Vector3D(500, 200, 500), Color.YELLOW);
-        //engine.addCube(new Vector3D(200, 200, 200), new Vector3D(300, 300, 300), Color.MAGENTA);
-        //engine.addCube(new Vector3D(200, 0, 200), new Vector3D(300, 100, 300), Color.WHITE);
+        engine.addCube(new Vector3D(0, 0, 300), new Vector3D(200, 200, 500), Color.BLUE);
+        engine.addCube(new Vector3D(300, 0, 300), new Vector3D(500, 200, 500), Color.YELLOW);
         
-        //engine.addSphere(new Vector3D(0, 0, 0), 10000.0, 50, Color.BLUE);
-        //engine.addSphere(new Vector3D(100, 100, 100), 100.0, 50, Color.RED);
-        //engine.addSphere(new Vector3D(400, 100, 100), 100.0, 50, Color.GREEN);
+        engine.addSphere(new Vector3D(100, 100, 100), 100.0, 51, Color.RED);
+        engine.addSphere(new Vector3D(400, 100, 100), 100.0, 51, Color.GREEN);
     
         frame = new JFrame();
         frame.setResizable(false);
@@ -128,7 +123,7 @@ public class Main implements KeyListener, ActionListener
         if (movement != null) {
             movement = movement.rotX(-engine.getRotX()).rotZ(-engine.getRotZ());
             camera = camera.add(movement);
-            //System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
+            System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
             engine.setCamera(camera);
         }
         

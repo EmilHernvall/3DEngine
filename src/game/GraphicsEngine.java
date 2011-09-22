@@ -115,30 +115,30 @@ public class GraphicsEngine
     {
         // surfaces parallell to the xy plane
         // (a.x, a.y, a.z) - (b.x, b.y, a.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, color));
-        addPolygon(new Polygon(b.x, b.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, color));
+        addPolygon(new Polygon(a.x, a.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, -1.0, color));
+        addPolygon(new Polygon(b.x, b.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, 1.0, color));
         
         // (a.x, a.y, b.z) - (b.x, b.y, b.z)
-        addPolygon(new Polygon(a.x, a.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, color));
+        addPolygon(new Polygon(a.x, a.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, 1.0, color));
+        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, -1.0, color));
         
         // surfaces parallell to xz plane
         // (a.x, a.y, a.z) - (b.x, a.y, b.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  b.x, a.y, a.z, color));
-        addPolygon(new Polygon(b.x, a.y, b.z,  a.x, a.y, b.z,  b.x, a.y, a.z, color));
+        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  b.x, a.y, a.z, -1.0, color));
+        addPolygon(new Polygon(b.x, a.y, b.z,  a.x, a.y, b.z,  b.x, a.y, a.z, 1.0, color));
         
         // (a.x, b.y, a.z) - (b.x, b.y, b.z)
-        addPolygon(new Polygon(a.x, b.y, a.z,  a.x, b.y, b.z,  b.x, b.y, a.z, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  a.x, b.y, b.z,  b.x, b.y, a.z, color));
+        addPolygon(new Polygon(a.x, b.y, a.z,  a.x, b.y, b.z,  b.x, b.y, a.z, 1.0, color));
+        addPolygon(new Polygon(b.x, b.y, b.z,  a.x, b.y, b.z,  b.x, b.y, a.z, -1.0, color));
         
         // surfaces parallell to yz plane
         // (a.x, a.y, a.z) - (a.x, b.x, b.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  a.x, b.y, a.z, color));
-        addPolygon(new Polygon(a.x, b.y, b.z,  a.x, a.y, b.z,  a.x, b.y, a.z, color));
+        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  a.x, b.y, a.z, 1.0, color));
+        addPolygon(new Polygon(a.x, b.y, b.z,  a.x, a.y, b.z,  a.x, b.y, a.z, -1.0, color));
         
         // (b.x, a.y, a.z) - (b.x, b.x, b.z)
-        addPolygon(new Polygon(b.x, a.y, a.z,  b.x, a.y, b.z,  b.x, b.y, a.z, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  b.x, b.y, a.z, color));
+        addPolygon(new Polygon(b.x, a.y, a.z,  b.x, a.y, b.z,  b.x, b.y, a.z, -1.0, color));
+        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  b.x, b.y, a.z, 1.0, color));
     }
     
     public void addSphere(Vector3D center, double radius, int steps, Color color)
@@ -166,8 +166,8 @@ public class GraphicsEngine
                 
                 double z2 = center.z + radius*Math.cos(theta2);
                 
-                addPolygon(new Polygon(x11, y11, z1,  x12, y12, z1,  x21, y21, z2,  color));
-                addPolygon(new Polygon(x22, y22, z2,  x12, y12, z1,  x21, y21, z2,  color));
+                addPolygon(new Polygon(x11, y11, z1,  x12, y12, z1,  x21, y21, z2,  1.0, color));
+                addPolygon(new Polygon(x22, y22, z2,  x12, y12, z1,  x21, y21, z2,  -1.0, color));
             }
         }
     }
@@ -187,14 +187,19 @@ public class GraphicsEngine
     private double calcIntensity(Vector3D v)
     {
         // average the normals of all edges that intersect at
-        // this vertice
+        // this vertice (gouraud shading)
         List<Polygon> polygons = vertices.get(v);
         Vector3D normal = null;
         for (Polygon p : polygons) {
+            Vector3D n = p.normal();
+            if (Double.isNaN(n.x)) {
+                continue;
+            }
+            
             if (normal == null) {
-                normal = p.normal();
+                normal = n;
             } else {
-                normal = normal.add(p.normal());
+                normal = normal.add(n);
             }
         }
         normal = normal.mul(1.0/polygons.size());
@@ -204,7 +209,7 @@ public class GraphicsEngine
             Vector3D rel = v.sub(l.position);
             
             double i = normal.dot(rel);
-            if (!Double.isNaN(i)) {
+            if (!Double.isNaN(i) && i > 0) {
                 intensity += i * l.intensity;
             }
         }
@@ -222,6 +227,15 @@ public class GraphicsEngine
             
         double intensityNorm = 0.0;
         for (Polygon v : polygons) {
+        
+            // hide polygons facing away from the camera
+            Vector3D normal = v.normal();
+            Vector3D rel = camera.sub(v.a);
+            double d = normal.dot(rel);
+            if (d < 0) {
+                continue;
+            }
+        
             // calculate color
             double aIntensity = calcIntensity(v.a);
             intensityNorm = Math.max(intensityNorm, aIntensity);
@@ -240,7 +254,7 @@ public class GraphicsEngine
             b = b.rotZ(rotZ).rotX(rotX);
             c = c.rotZ(rotZ).rotX(rotX);
             
-            Polygon p = new Polygon(a, b, c, v.color);
+            Polygon p = new Polygon(a, b, c, v.dir, v.color);
             p.aIntensity = aIntensity;
             p.bIntensity = bIntensity;
             p.cIntensity = cIntensity;
@@ -263,7 +277,7 @@ public class GraphicsEngine
         
         time = System.currentTimeMillis() - time;
         
-        //System.out.println("drew " + drawn + " polygons in " + time + " ms.");
+        System.out.println("drew " + drawn + " polygons in " + time + " ms.");
     }
     
     private boolean drawPolygon(Polygon v)
@@ -361,10 +375,12 @@ public class GraphicsEngine
         int dy = Math.abs(y1 - y0);
 
         int tmp;
+        double tmp2;
         if (dx > dy) {
             if (x0 > x1) {
                 tmp = x0; x0 = x1; x1 = tmp;
                 tmp = y0; y0 = y1; y1 = tmp;
+                tmp2 = i0; i0 = i1; i1 = tmp2;
             }
 
             double[] y_values = MathUtils.linearInterpolation(x0, y0, x1, y1);
@@ -374,10 +390,11 @@ public class GraphicsEngine
                 putPixel(x, (int)y_values[x-x0], (float)z_values[x-x0], color, i_values[x-x0]);
             }
         }
-        /*else {
+        else {
             if (y0 > y1) {
                 tmp = x0; x0 = x1; x1 = tmp;
                 tmp = y0; y0 = y1; y1 = tmp;
+                tmp2 = i0; i0 = i1; i1 = tmp2;
             }
 
             double[] x_values = MathUtils.linearInterpolation(y0, x0, y1, x1);
@@ -386,7 +403,7 @@ public class GraphicsEngine
             for (int y = y0; y < y1; y++) {
                 putPixel((int)x_values[y-y0], y, (float)z_values[y-y0], color, i_values[y-y0]);
             }
-        }*/
+        }
     }
     
     private void putPixel(int x, int y, float z, Color color, double intensity)
@@ -404,6 +421,7 @@ public class GraphicsEngine
                     (int)(color.getGreen() * intensity),
                     (int)(color.getBlue() * intensity)
                 );
+
             surface.putPixel(x, y, newColor);
             zBuffer[width*y + x] = z;
         }
