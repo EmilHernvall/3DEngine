@@ -24,4 +24,15 @@ public class Plane
     {
         return a.dot(n) - d;
     }
+    
+    public Vector3D intersectLine(Vector3D a, Vector3D b)
+    {
+        Vector3D v = a.sub(b).norm();
+        double t = (d - n.dot(a))/n.dot(v);
+        if (t > 0.0) {
+            return null;
+        }
+        
+        return a.add(v.mul(t));
+    }
 }

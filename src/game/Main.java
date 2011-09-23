@@ -26,6 +26,7 @@ public class Main implements KeyListener, ActionListener
         SwingSurface surface = new SwingSurface(engine);
         engine.setSurface(surface);
         
+        // scene with two cubes and two balls
         //engine.setCamera(new Vector3D(250, -500, 250));
         engine.setCamera(new Vector3D(709.40, 758.20, 8.01));
         engine.setRotX(-0.35f);
@@ -39,6 +40,15 @@ public class Main implements KeyListener, ActionListener
         
         engine.addSphere(new Vector3D(100, 200, 100), 100.0, 25, Color.RED);
         engine.addSphere(new Vector3D(400, 200, 100), 100.0, 25, Color.GREEN);
+        
+        // sine landscape
+        /*
+        engine.setCamera(new Vector3D(371.38, -85.34, -220.37));
+        engine.setRotX(-0.65f);
+        engine.setRotZ(-0.6f);
+        engine.addLightSource(new LightSource(new Vector3D(0, 100, 1000), 10.0));
+        engine.addSineFloor(new Vector3D(0, 100, 0), 50, 33, 100, 4.0, Color.YELLOW);
+        */
         
         engine.preprocessScene();
     
@@ -128,7 +138,7 @@ public class Main implements KeyListener, ActionListener
         if (movement != null) {
             movement = movement.rotX(-engine.getRotX()).rotZ(-engine.getRotZ());
             camera = camera.add(movement);
-            //System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
+            System.out.println("Camera position: " + camera + ", Camera angle: " + engine.getRotX() + ", " + engine.getRotZ());
             engine.setCamera(camera);
         }
         

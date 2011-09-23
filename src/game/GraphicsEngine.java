@@ -137,6 +137,31 @@ public class GraphicsEngine
         }
     }
     
+    public void addSineFloor(Vector3D corner, double amplitude, double period, int steps, double scale, Color color)
+    {
+        for (int s = 0; s < steps; s++) {
+            for (int t = 0; t < steps; t++) {
+                double theta1 = 2*Math.PI*t/period;
+                double theta2 = 2*Math.PI*(t+1)/period;
+                double phi1 = 2*Math.PI*s/period;
+                double phi2 = 2*Math.PI*(s+1)/period;
+                
+                double x1 = corner.x + t*scale;
+                double y1 = corner.y + s*scale;
+                double z11 = corner.z + amplitude*Math.sin(theta1)*Math.sin(phi1);
+                double z12 = corner.z + amplitude*Math.sin(theta1)*Math.sin(phi2);
+                
+                double x2 = corner.x + (t + 1)*scale;
+                double y2 = corner.y + (s + 1)*scale;
+                double z21 = corner.z + amplitude*Math.sin(theta2)*Math.sin(phi1);
+                double z22 = corner.z + amplitude*Math.sin(theta2)*Math.sin(phi2);
+                
+                addPolygon(new Polygon(x1, y1, z11,  x2, y1, z21,  x1, y2, z12,  -1.0, color));
+                addPolygon(new Polygon(x2, y2, z22,  x2, y1, z21,  x1, y2, z12,  1.0, color));
+            }
+        }
+    }
+    
     public void triggerRedraw()
     {
         surface.repaint();
@@ -254,46 +279,23 @@ public class GraphicsEngine
         List<Plane> frustum = createFrustum();
         
         int drawn = 0;
+        List<Polygon> renderList = new ArrayList<Polygon>();
         for (Polygon v : polygons) {
             // hide polygons outside of the statum
             Vector3D centroid = v.centroid3D();
-            boolean outside = false;
+            double maxDist = v.maxDistance(centroid);
+            List<Polygon> all = new ArrayList<Polygon>();
+            boolean visible = true;
             for (Plane plane : frustum) {
                 double dist = plane.distance(centroid);
-                if (dist < 0) {
-                    outside = true;
+                
+                // the polygon resides entirely outside of the frustum
+                if (dist <= -maxDist) {
+                    visible = false;
                     break;
                 }
             }
-            
-            if (outside) {
-                continue;
-            }
-        
-            // hide polygons facing away from the camera
-            Vector3D normal = v.normal();
-            Vector3D rel = camera.sub(v.a);
-            double d = normal.dot(rel);
-            if (d < 0) {
-                continue;
-            }
-        
-            // change coordinates to camera position
-            Vector3D a = v.a.sub(camera);
-            Vector3D b = v.b.sub(camera);
-            Vector3D c = v.c.sub(camera);
-            
-            // apply rotation
-            a = a.rotZ(rotZ).rotX(rotX);
-            b = b.rotZ(rotZ).rotX(rotX);
-            c = c.rotZ(rotZ).rotX(rotX);
-            
-            Polygon p = new Polygon(a, b, c, v.dir, v.color);
-            p.aIntensity = v.aIntensity;
-            p.bIntensity = v.bIntensity;
-            p.cIntensity = v.cIntensity;
-            
-            if (drawPolygon(p)) {
+            if (visible && drawPolygon(v)) {
                 drawn++;
             }
         }
@@ -305,9 +307,28 @@ public class GraphicsEngine
     
     private boolean drawPolygon(Polygon v)
     {
-        Vector3D a = v.a;
-        Vector3D b = v.b;
-        Vector3D c = v.c;
+        // hide polygons facing away from the camera
+        Vector3D normal = v.normal();
+        Vector3D rel = camera.sub(v.a);
+        double d = normal.dot(rel);
+        if (d < 0) {
+            return false;
+        }
+    
+        // change coordinates to camera position
+        Vector3D a = v.a.sub(camera);
+        Vector3D b = v.b.sub(camera);
+        Vector3D c = v.c.sub(camera);
+        
+        // apply rotation
+        a = a.rotZ(rotZ).rotX(rotX);
+        b = b.rotZ(rotZ).rotX(rotX);
+        c = c.rotZ(rotZ).rotX(rotX);
+        
+        Polygon p = new Polygon(a, b, c, v.dir, v.color);
+        p.aIntensity = v.aIntensity;
+        p.bIntensity = v.bIntensity;
+        p.cIntensity = v.cIntensity;
         
         // hide surfaces behind the camera
         if (a.y <= 1 || b.y <= 1 || c.y < 1) {
@@ -401,7 +422,7 @@ public class GraphicsEngine
                 tmp = y0; y0 = y1; y1 = tmp;
                 tmp2 = i0; i0 = i1; i1 = tmp2;
             }
-
+            
             double[] y_values = MathUtils.linearInterpolation(x0, y0, x1, y1);
             double[] z_values = MathUtils.linearInterpolation(x0, z0, x1, z1);
             double[] i_values = MathUtils.linearInterpolation(x0, i0, x1, i1);

@@ -91,6 +91,15 @@ public class Vector3D
         return (b.x - x)/e.x;
     }
     
+    public boolean equals(Vector3D vec)
+    {
+        double eps = 0.0001;
+        return 
+            Math.abs(vec.x - x) < eps && 
+            Math.abs(vec.y - y) < eps &&
+            Math.abs(vec.z - z) < eps;
+    }
+    
     @Override
     public boolean equals(Object obj)
     {

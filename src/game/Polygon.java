@@ -57,6 +57,15 @@ public class Polygon
             );
     }
     
+    public double maxDistance(Vector3D d)
+    {
+        double first = a.sub(d).abs();
+        double second = b.sub(d).abs();
+        double third = c.sub(d).abs();
+        
+        return Math.max(first, Math.max(second, third));
+    }
+    
     public Vector3D normal()
     {
         Vector3D first = b.sub(a);

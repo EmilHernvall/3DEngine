@@ -148,10 +148,13 @@ Emil Hernvall
 2011-09-22, day 6:
 
     Today I started working on hidden surface removal using a view frustum. The flipcode link I provided
-    yesterday described this approach. It works by constructing four planes around the field of view,
-    and removes any polygons outside of the planes. Whether they are inside or outside can be determined
-    quickly using the point-to-plane distance formula. This is as simple as substituting the point that
-    you wish to check into the formula.
+    yesterday described this approach. Another good resource is:
+    
+     * http://www.lighthouse3d.com/tutorials/view-frustum-culling/
+    
+    This method works by constructing four planes around the field of view, and removes any polygons outside 
+    of the planes. Whether they are inside or outside can be determined quickly using the point-to-plane 
+    distance formula. This is as simple as substituting the point that you wish to check into the formula.
     
     In practice there were a few things that caused me a lot of trouble when implementing this, but in the
     end it turned out that I got almost everything right, except one small thing - the point should be
@@ -161,3 +164,18 @@ Emil Hernvall
     scene from above. This allowed me to actually visualize the frustum. Unfortunately the problem had
     nothing to do with the calculation of the stratum, but I guess it might come in handy later.
     
+    I've run in to some major problems with 3d clipping. I tried it, and the clipped triangles looked really
+    strange. Right now I'm a bit unsure about the exact nature of this problem. At first it seemed like it
+    was related to the surface normals being in the wrong direction, and the algorithm being unable to look
+    up other surfaces at the new vertex. Then I realized that I'll likely have to recompute the lightning
+    to get the correct intensities. I'm reaching the point where I won't be able to spend as much time on
+    this project, so this whole thing is a bit stressful. I really need to solve the clipping problem before
+    I can do stuff like rendering corridors that can be navigated from the inside.
+    
+    This looks like a good discussion about some of these issues:
+    
+     * http://www.pouet.net/topic.php?which=4426&page=1
+     
+    It also reminded me that I want to implement some kind of texture mapping. I'm starting to think that
+    I would have an engine that can handle all the things that I set out to do if I can just solve these
+    two issues.
