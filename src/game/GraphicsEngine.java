@@ -280,22 +280,42 @@ public class GraphicsEngine
         
         int drawn = 0;
         List<Polygon> renderList = new ArrayList<Polygon>();
-        for (Polygon v : polygons) {
-            // hide polygons outside of the statum
-            Vector3D centroid = v.centroid3D();
-            double maxDist = v.maxDistance(centroid);
+        for (Polygon p : polygons) {
             List<Polygon> all = new ArrayList<Polygon>();
+            all.add(p);
+            
+            // hide polygons outside of the statum
             boolean visible = true;
             for (Plane plane : frustum) {
-                double dist = plane.distance(centroid);
                 
-                // the polygon resides entirely outside of the frustum
-                if (dist <= -maxDist) {
-                    visible = false;
-                    break;
+                List<Polygon> newPolygons = new ArrayList<Polygon>();
+                for (Polygon current : all) {
+                    double dist = plane.distance(current.centroid);
+                    
+                    // the polygon resides entirely inside of the frustum
+                    if (dist > 0) {
+                        newPolygons.add(current);
+                    }
+                    // the polygon is partly outside of the frustum and needs
+                    // clipping
+                    else if (dist > -current.radius) {
+                        Polygon[] clippedPolygons = MathUtils.clip(plane, current);
+                        if (clippedPolygons == null) {
+                            continue;
+                        }
+                        for (Polygon newPolygon : clippedPolygons) {
+                            newPolygons.add(newPolygon);
+                        }
+                    }
                 }
+                all = newPolygons;
             }
-            if (visible && drawPolygon(v)) {
+
+            renderList.addAll(all);
+        }
+        
+        for (Polygon p : renderList) {
+            if (drawPolygon(p)) {
                 drawn++;
             }
         }
