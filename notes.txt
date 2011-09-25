@@ -179,3 +179,14 @@ Emil Hernvall
     It also reminded me that I want to implement some kind of texture mapping. I'm starting to think that
     I would have an engine that can handle all the things that I set out to do if I can just solve these
     two issues.
+
+2011-09-25, day 7:
+
+    Finally got around to implementing a 3d clipping algorithm. I decided to improvise something instead of using
+    Sutherland-Hodgeman since my clipping problem was simpler than the problem that that algorithm solves. Rather
+    than cutting an arbitrary polygon against another, I just had to clip a triangle against a plane. This approach
+    seems to be working well, although there's still a few bugs related to the interpolation of light intensities.
+    
+    I refactored out the polygon generation algorithms from GraphicsEngine and started working on creating a system
+    of tunnels that the player will be allowed to move freely within. This seems to work well now. The next step will
+    be to create a more complicated system of tunnels, and start developing this into an actual game. 

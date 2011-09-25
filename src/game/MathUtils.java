@@ -57,13 +57,13 @@ public class MathUtils
         
         Polygon[] result = new Polygon[2];
         
-        result[0] = new Polygon(inside[0], inside[1], newPoints[0], -p.dir, p.color);
+        result[0] = new Polygon(inside[0], inside[1], newPoints[0], p.color);
         result[0].aIntensity = insideIntensity[0];
         result[0].bIntensity = insideIntensity[1];
         result[0].cIntensity = interpolateIntensity(inside[0], insideIntensity[0], 
             outside, outsideIntensity, newPoints[0]);
             
-        result[1] = new Polygon(inside[1], newPoints[0], newPoints[1], p.dir, p.color);
+        result[1] = new Polygon(inside[1], newPoints[0], newPoints[1], p.color);
         result[1].aIntensity = insideIntensity[1];
         result[1].bIntensity = interpolateIntensity(inside[0], insideIntensity[0], 
             outside, outsideIntensity, newPoints[0]);
@@ -110,7 +110,7 @@ public class MathUtils
         newPoints[0] = plane.intersectLine(inside, outside[0]);
         newPoints[1] = plane.intersectLine(inside, outside[1]);
         
-        Polygon newPolygon = new Polygon(inside, newPoints[0], newPoints[1], -p.dir, p.color);
+        Polygon newPolygon = new Polygon(inside, newPoints[0], newPoints[1], p.color);
         newPolygon.aIntensity = insideIntensity;
         newPolygon.bIntensity = interpolateIntensity(inside, insideIntensity, 
             outside[0], outsideIntensity[0], newPoints[0]);
@@ -154,7 +154,15 @@ public class MathUtils
         Vector3D n2 = r.normal();
         
         if (!n1.equals(n2)) {
-            p.dir *= -1;
+            Vector3D tmp;
+            tmp = p.b;
+            p.b = p.c;
+            p.c = tmp;
+            
+            double tmp2;
+            tmp2 = p.bIntensity;
+            p.bIntensity = p.cIntensity;
+            p.cIntensity = tmp2;
         }
     }
     

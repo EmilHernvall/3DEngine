@@ -14,5 +14,4 @@ to get a feel for it. I plan to add support for textures, and eventually develop
 really simple game (an fps or something like that). I'm a bit curious about BSP trees, so I'll
 probably look into integrating that as well.
 
- - Emil
- 
+Emil <emil.hernvall@gmail.com>

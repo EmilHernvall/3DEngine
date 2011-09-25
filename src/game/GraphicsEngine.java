@@ -76,92 +76,6 @@ public class GraphicsEngine
         edges.add(p);
     }
     
-    public void addCube(Vector3D a, Vector3D b, Color color)
-    {
-        // surfaces parallell to the xy plane
-        // (a.x, a.y, a.z) - (b.x, b.y, a.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, -1.0, color));
-        addPolygon(new Polygon(b.x, b.y, a.z,  b.x, a.y, a.z,  a.x, b.y, a.z, 1.0, color));
-        
-        // (a.x, a.y, b.z) - (b.x, b.y, b.z)
-        addPolygon(new Polygon(a.x, a.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, 1.0, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  a.x, b.y, b.z, -1.0, color));
-        
-        // surfaces parallell to xz plane
-        // (a.x, a.y, a.z) - (b.x, a.y, b.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  b.x, a.y, a.z, -1.0, color));
-        addPolygon(new Polygon(b.x, a.y, b.z,  a.x, a.y, b.z,  b.x, a.y, a.z, 1.0, color));
-        
-        // (a.x, b.y, a.z) - (b.x, b.y, b.z)
-        addPolygon(new Polygon(a.x, b.y, a.z,  a.x, b.y, b.z,  b.x, b.y, a.z, 1.0, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  a.x, b.y, b.z,  b.x, b.y, a.z, -1.0, color));
-        
-        // surfaces parallell to yz plane
-        // (a.x, a.y, a.z) - (a.x, b.x, b.z)
-        addPolygon(new Polygon(a.x, a.y, a.z,  a.x, a.y, b.z,  a.x, b.y, a.z, 1.0, color));
-        addPolygon(new Polygon(a.x, b.y, b.z,  a.x, a.y, b.z,  a.x, b.y, a.z, -1.0, color));
-        
-        // (b.x, a.y, a.z) - (b.x, b.x, b.z)
-        addPolygon(new Polygon(b.x, a.y, a.z,  b.x, a.y, b.z,  b.x, b.y, a.z, -1.0, color));
-        addPolygon(new Polygon(b.x, b.y, b.z,  b.x, a.y, b.z,  b.x, b.y, a.z, 1.0, color));
-    }
-    
-    public void addSphere(Vector3D center, double radius, int steps, Color color)
-    {
-        for (int t = 0; t < steps; t++) {
-            for (int s = 0; s < steps; s++) {
-                double theta1 = 2*Math.PI*t/steps;
-                double theta2 = 2*Math.PI*(t+1)/steps;
-                double phi1 = 2*Math.PI*s/steps;
-                double phi2 = 2*Math.PI*(s+1)/steps;
-                
-                double x11 = center.x + radius*Math.sin(theta1)*Math.cos(phi1);
-                double y11 = center.y + radius*Math.sin(theta1)*Math.sin(phi1);
-                
-                double x12 = center.x + radius*Math.sin(theta1)*Math.cos(phi2);
-                double y12 = center.y + radius*Math.sin(theta1)*Math.sin(phi2);
-                
-                double z1 = center.z + radius*Math.cos(theta1);
-                
-                double x21 = center.x + radius*Math.sin(theta2)*Math.cos(phi1);
-                double y21 = center.y + radius*Math.sin(theta2)*Math.sin(phi1);
-                
-                double x22 = center.x + radius*Math.sin(theta2)*Math.cos(phi2);
-                double y22 = center.y + radius*Math.sin(theta2)*Math.sin(phi2);
-                
-                double z2 = center.z + radius*Math.cos(theta2);
-                
-                addPolygon(new Polygon(x11, y11, z1,  x12, y12, z1,  x21, y21, z2,  1.0, color));
-                addPolygon(new Polygon(x22, y22, z2,  x12, y12, z1,  x21, y21, z2,  -1.0, color));
-            }
-        }
-    }
-    
-    public void addSineFloor(Vector3D corner, double amplitude, double period, int steps, double scale, Color color)
-    {
-        for (int s = 0; s < steps; s++) {
-            for (int t = 0; t < steps; t++) {
-                double theta1 = 2*Math.PI*t/period;
-                double theta2 = 2*Math.PI*(t+1)/period;
-                double phi1 = 2*Math.PI*s/period;
-                double phi2 = 2*Math.PI*(s+1)/period;
-                
-                double x1 = corner.x + t*scale;
-                double y1 = corner.y + s*scale;
-                double z11 = corner.z + amplitude*Math.sin(theta1)*Math.sin(phi1);
-                double z12 = corner.z + amplitude*Math.sin(theta1)*Math.sin(phi2);
-                
-                double x2 = corner.x + (t + 1)*scale;
-                double y2 = corner.y + (s + 1)*scale;
-                double z21 = corner.z + amplitude*Math.sin(theta2)*Math.sin(phi1);
-                double z22 = corner.z + amplitude*Math.sin(theta2)*Math.sin(phi2);
-                
-                addPolygon(new Polygon(x1, y1, z11,  x2, y1, z21,  x1, y2, z12,  -1.0, color));
-                addPolygon(new Polygon(x2, y2, z22,  x2, y1, z21,  x1, y2, z12,  1.0, color));
-            }
-        }
-    }
-    
     public void triggerRedraw()
     {
         surface.repaint();
@@ -231,7 +145,7 @@ public class GraphicsEngine
     private List<Plane> createFrustum()
     {
         double nearDist = focalLength;
-        double farDist = 4*nearDist;
+        double farDist = 4*focalLength;
         
         double farWidth = width * farDist/nearDist;
         double farHeight = height * farDist/nearDist;
@@ -290,15 +204,13 @@ public class GraphicsEngine
                 
                 List<Polygon> newPolygons = new ArrayList<Polygon>();
                 for (Polygon current : all) {
-                    double dist = plane.distance(current.centroid);
+                    double dist1 = plane.distance(current.a);
+                    double dist2 = plane.distance(current.b);
+                    double dist3 = plane.distance(current.c);
                     
-                    // the polygon resides entirely inside of the frustum
-                    if (dist > 0) {
-                        newPolygons.add(current);
-                    }
-                    // the polygon is partly outside of the frustum and needs
+                    // the polygon is at least partly outside of the frustum and needs
                     // clipping
-                    else if (dist > -current.radius) {
+                    if (dist1 < 0 || dist2 < 0 || dist3 < 0) {
                         Polygon[] clippedPolygons = MathUtils.clip(plane, current);
                         if (clippedPolygons == null) {
                             continue;
@@ -306,6 +218,10 @@ public class GraphicsEngine
                         for (Polygon newPolygon : clippedPolygons) {
                             newPolygons.add(newPolygon);
                         }
+                    }
+                    // the polygon resides fully inside of the frustum
+                    else {
+                        newPolygons.add(current);
                     }
                 }
                 all = newPolygons;
@@ -322,7 +238,7 @@ public class GraphicsEngine
         
         time = System.currentTimeMillis() - time;
         
-        System.out.println("drew " + drawn + " polygons in " + time + " ms (" + (1000/time) + " fps).");
+        System.out.println("drew " + drawn + " polygons in " + time + " ms (" + (1000/(time+1)) + " fps).");
     }
     
     private boolean drawPolygon(Polygon v)
@@ -345,7 +261,7 @@ public class GraphicsEngine
         b = b.rotZ(rotZ).rotX(rotX);
         c = c.rotZ(rotZ).rotX(rotX);
         
-        Polygon p = new Polygon(a, b, c, v.dir, v.color);
+        Polygon p = new Polygon(a, b, c, v.color);
         p.aIntensity = v.aIntensity;
         p.bIntensity = v.bIntensity;
         p.cIntensity = v.cIntensity;

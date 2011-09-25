@@ -82,7 +82,7 @@ public class DebugWindow extends JFrame
         right = right.rotX(-engine.rotX).rotZ(-engine.rotZ).norm();
         
         double nearDist = engine.focalLength;
-        double farDist = 2*nearDist;
+        double farDist = 2*engine.focalLength;
         
         double farWidth = engine.width * farDist/nearDist;
         double farHeight = engine.height * farDist/nearDist;

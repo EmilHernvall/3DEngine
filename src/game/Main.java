@@ -35,11 +35,13 @@ public class Main implements KeyListener, ActionListener
         engine.addLightSource(new LightSource(new Vector3D(-100, -250, 250), 10.0));
         engine.addLightSource(new LightSource(new Vector3D(600, -250, 250), 10.0));
         
-        engine.addCube(new Vector3D(0, 100, 300), new Vector3D(200, 300, 500), Color.BLUE);
-        engine.addCube(new Vector3D(300, 100, 300), new Vector3D(500, 300, 500), Color.YELLOW);
+        CubeGenerator cubeGen = new CubeGenerator(engine);
+        cubeGen.createCube(new Vector3D(0, 100, 300), new Vector3D(200, 300, 500), Color.BLUE);
+        cubeGen.createCube(new Vector3D(300, 100, 300), new Vector3D(500, 300, 500), Color.YELLOW);
         
-        engine.addSphere(new Vector3D(100, 200, 100), 100.0, 25, Color.RED);
-        engine.addSphere(new Vector3D(400, 200, 100), 100.0, 25, Color.GREEN);
+        SphereGenerator sphereGen = new SphereGenerator(engine);
+        sphereGen.createSphere(new Vector3D(100, 200, 100), 100.0, 25, Color.RED);
+        sphereGen.createSphere(new Vector3D(400, 200, 100), 100.0, 25, Color.GREEN);
         
         // sine landscape
         /*
@@ -47,7 +49,34 @@ public class Main implements KeyListener, ActionListener
         engine.setRotX(-0.65f);
         engine.setRotZ(-0.6f);
         engine.addLightSource(new LightSource(new Vector3D(0, 100, 1000), 10.0));
-        engine.addSineFloor(new Vector3D(0, 100, 0), 50, 33, 100, 4.0, Color.YELLOW);
+        
+        SineSurfaceGenerator gen = new SineSurfaceGenerator(engine);
+        gen.createSineFloor(new Vector3D(0, 100, 0), 50, 33, 100, 4.0, Color.YELLOW);
+        */
+        
+        // system of tunnels
+        /*
+        engine.setCamera(new Vector3D(200, 0, -50));
+        engine.addLightSource(new LightSource(new Vector3D(100, 0, 100), 10.0));
+        engine.addLightSource(new LightSource(new Vector3D(300, 0, 100), 10.0));
+        engine.addLightSource(new LightSource(new Vector3D(-100, 0, -100), 10.0));
+        engine.addLightSource(new LightSource(new Vector3D(-300, 0, -100), 10.0));
+        
+        // floor
+        engine.addPolygon(new Polygon(100, 0, 0,  300, 1000, 0,  300, 0, 0,  Color.YELLOW));
+        engine.addPolygon(new Polygon(100, 0, 0,  100, 1000, 0,  300, 1000, 0,  Color.YELLOW));
+        
+        // roof
+        engine.addPolygon(new Polygon(300, 0, -100,  300, 1000, -100,  100, 0, -100,  Color.YELLOW));
+        engine.addPolygon(new Polygon(300, 1000, -100,  100, 1000, -100,  100, 0, -100,  Color.YELLOW));
+        
+        // left wall
+        engine.addPolygon(new Polygon(100, 0, 0,  100, 0, -100,  100, 1000, -100,  Color.RED));
+        engine.addPolygon(new Polygon(100, 0, 0,  100, 1000, -100,  100, 1000, 0,  Color.RED));
+        
+        // right wall
+        engine.addPolygon(new Polygon(300, 0, -100,  300, 0, 0,  300, 1000,  -100,  Color.GREEN));
+        engine.addPolygon(new Polygon(300, 1000, -100,  300, 0, 0,  300, 1000, 0,  Color.GREEN));
         */
         
         engine.preprocessScene();

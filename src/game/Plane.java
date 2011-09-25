@@ -30,7 +30,7 @@ public class Plane
         Vector3D v = a.sub(b).norm();
         double t = (d - n.dot(a))/n.dot(v);
         if (t > 0.0) {
-            return null;
+            return b;
         }
         
         return a.add(v.mul(t));
